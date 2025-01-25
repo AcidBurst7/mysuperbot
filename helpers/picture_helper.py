@@ -58,7 +58,7 @@ def save_media(data, picture_name=""):
         except Exception as e:
             result = {"status": False, "message": e}
     else:
-        result = {"status": True, "image_name": data["url"]}
+        result = {"status": False, "image_name": data["url"]}
 
     return result
 
@@ -78,22 +78,25 @@ def get_picture_from_base(engine, date):
     if result_today_media is None:
         data = download_media(NASA_TOKEN, date)
 
-        if data is not None:
-            save_image = save_media(data, date.strftime("%Y-%m-%d"))
+        if data["code"] == 200:
+            if data is not None:
+                save_image = save_media(data, date.strftime("%Y-%m-%d"))
 
-            if save_image["status"]:
-                session.add(Picture(title=data['title'], description=data['explanation'], link=data['url'], type=data["media_type"], published_date=date))
-                session.commit()
-            
-            if data["media_type"] == "video":
-                media_content = f"Сегодня тот самый редкий случай когда вместо картинки - видео!\n{data['title']}\n{data["url"]}"
-            elif data["media_type"] == "image":
-                media_content = f"{data['title']}\n"
-                media_file = FSInputFile(f"./src/img/{save_image["image_name"]}")
+                if save_image["status"]:
+                    session.add(Picture(title=data['title'], description=data['explanation'], link=data['url'], type=data["media_type"], published_date=date))
+                    session.commit()
+                
+                if data["media_type"] == "video":
+                    media_content = f"Сегодня тот самый редкий случай когда вместо картинки - видео!\n{data['title']}\n{data["url"]}"
+                elif data["media_type"] == "image":
+                    media_content = f"{data['title']}\n"
+                    media_file = FSInputFile(f"./src/img/{save_image["image_name"]}")
 
-            status = True
+                status = True
+            else:
+                message = f"На сегодня хранилище с картинками недоступно. Попробуте через час или позже."
         else:
-            message = f"На сегодня хранилище с картинками недоступно. Попробуте через час или позже."
+            message = f"На сегодня картинка пока не доступна. Она пока еще в пути до Земли 🪐🛰️"
     else:
         if result_today_media.type == "image":
             url_paths = result_today_media.link.split("/")

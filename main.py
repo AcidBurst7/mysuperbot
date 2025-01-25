@@ -46,10 +46,12 @@ async def today_picture(message: Message):
     user_helper.get_user(engine, message.from_user.username, message.chat.id)
     response = picture_helper.get_picture_from_base(engine, datetime.date.today())
 
-    if response["image"]["file"] == "":
-        await message.answer(response["image"]["title"])
+    content = response["media"]["title"] if response["status"] else response["message"]
+
+    if response["media"]["file"] == "":
+        await message.answer(content)
     else:
-        await message.answer_photo(response["image"]["file"], response["image"]["title"])
+        await message.answer_photo(response["media"]["file"], response["media"]["title"])
 
 
 @dp.message(Command("calendar"))
