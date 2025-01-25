@@ -78,8 +78,13 @@ def get_picture_from_base(engine, date):
             session.add(Picture(title=data['title'], description=data['explanation'], link=data['url'], picture_date=date))
             session.commit()
 
-            input_file = FSInputFile(f"./src/img/{save_image["image_name"]}")
-            picture_content = f"{data['title']}\n"
+            if data["media_type"] == "image":
+                input_file = FSInputFile(f"./src/img/{save_image["image_name"]}")
+            
+            if data["media_type"] == "video":
+                picture_content = f"{data['title']}\n{data["url"]}"
+            else:
+                picture_content = f"{data['title']}\n"
 
             status = True
         else:

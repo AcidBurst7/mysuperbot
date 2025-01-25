@@ -48,6 +48,11 @@ async def today_picture(message: Message):
 
     await message.answer_photo(picture["picture"]["input_file"], picture["picture"]["picture_content"])
 
+    if picture["picture"]["input_file"] == "":
+        await message.answer(picture["picture"]["picture_content"])
+    else:
+        await message.answer_photo(picture["picture"]["input_file"], picture["picture"]["picture_content"])
+
 
 @dp.message(Command("calendar"))
 async def calendar_picture(message: Message):
@@ -71,7 +76,10 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
         user_helper.get_user(engine, callback_query.from_user.username, callback_query.message.chat.id)
         picture = picture_helper.get_picture_from_base(engine, date)
 
-        await callback_query.message.answer_photo(picture["picture"]["input_file"], picture["picture"]["picture_content"])
+        if picture["picture"]["input_file"] == "":
+            await callback_query.message.answer(picture["picture"]["picture_content"])
+        else:
+            await callback_query.message.answer_photo(picture["picture"]["input_file"], picture["picture"]["picture_content"])
 
 
 async def main() -> None:
