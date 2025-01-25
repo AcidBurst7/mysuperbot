@@ -66,7 +66,7 @@ if __name__ == "__main__":
     commands = [
         f"cd {BOT_PATH}",
         "docker compose down",
-        # "docker compose up --build -d"
+        "docker compose up --build -d"
     ]
 
     result = send_show_command(ip=HOST, username=USERNAME, password=PASSWORD, enable="root", command=commands)

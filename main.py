@@ -35,7 +35,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 NASA_TOKEN = os.getenv("NASA_API_KEY")
 
 dp = Dispatcher()
-# schedule = AsyncIOScheduler()
+schedule = AsyncIOScheduler()
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -52,7 +52,7 @@ async def today_picture(message: Message):
 @dp.message(Command("calendar"))
 async def calendar_picture(message: Message):
     await message.answer(
-        "Здесь вы можете выбрать дату в промежутке от 1 января 2024 года и до сегодняшней даты. Выберите нужное из календарика ниже.",
+        "Здесь вы можете выбрать дату в промежутке от 1 января 1995 года и до сегодняшней даты. Выберите нужное из календарика ниже.",
         reply_markup=await SimpleCalendar().start_calendar()
     )
 
@@ -63,7 +63,7 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
     date_year = int(datetime.datetime.now().strftime("%Y"))
     date_month = int(datetime.datetime.now().strftime("%m"))
     date_day = int(datetime.datetime.now().strftime("%d"))
-    calendar.set_dates_range(datetime.datetime(2024, 1, 1), datetime.datetime(date_year, date_month, date_day))
+    calendar.set_dates_range(datetime.datetime(1995, 1, 1), datetime.datetime(date_year, date_month, date_day))
     selected, date = await calendar.process_selection(callback_query, callback_data)
     if selected:
         await callback_query.message.answer(f'Подгружаем картинку на дату {date.strftime("%d.%m.%Y")}...')
@@ -77,9 +77,9 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
-    # schedule.add_job(daily_picture.send_photo, 'cron', hour=8, minute=50, id='my_job_id')
+    schedule.add_job(daily_picture.send_photo, 'cron', hour=17, minute=40, id='my_job_id')
     # schedule.remove_job('my_job_id')
-    # schedule.start()
+    schedule.start()
     
     await dp.start_polling(bot)
 
