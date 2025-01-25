@@ -46,7 +46,10 @@ async def today_picture(message: Message):
     user_helper.get_user(engine, message.from_user.username, message.chat.id)
     response = picture_helper.get_picture_from_base(engine, datetime.date.today())
 
-    content = response["media"]["title"] if response["status"] else response["message"]
+    if response["status"]:
+        content = response["media"]["title"]  
+    else:
+        content = response["message"]
 
     if response["media"]["file"] == "":
         await message.answer(content)
