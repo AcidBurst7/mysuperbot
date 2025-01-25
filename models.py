@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 import datetime
 from typing import List
 from typing import Optional
-from sqlalchemy import ForeignKey, Date
+from sqlalchemy import ForeignKey, Date, DateTime
 from sqlalchemy import String, BigInteger
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
@@ -21,7 +21,7 @@ class Picture(Base):
     description: Mapped[Optional[str]]
     link: Mapped[Optional[str]]
     picture_date: Mapped[str] = mapped_column(Date, nullable=False)
-    created_at: Mapped[str] = mapped_column(Date, default=datetime.date.today, nullable=False)
+    created_at: Mapped[str] = mapped_column(DateTime, default=datetime.date.today, nullable=False)
     
     def __repr__(self) -> str:
         return f"Picture(id={self.id!r}, title={self.title!r}, fullname={self.description!r})"

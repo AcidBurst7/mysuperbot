@@ -32,17 +32,29 @@ def download_picture(token, date):
 Сохранение картинки на диске
 """
 def save_picture(url, picture_name=""):
+    url_paths = url.split("/")
+    image_name = url_paths[len(url_paths)-1]
+    image_extension = image_name.split(".")[1]
+    
     if picture_name == "":
         picture_name = datetime.date.today().strftime('%Y-%m-%d')
+
+    full_image_name = f"{picture_name}.{image_extension}"
+    image_path = f"./src/img/{full_image_name}"
     
     try:
-        save_today_picture_request = requests.get(url)
-        today_picture_file = open(f"src/img/{picture_name}.jpg", "wb")
-        today_picture_file.write(save_today_picture_request.content)
-        today_picture_file.close()
-        result = True
-    except Exception:
-        result = False
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            with open(image_path, "wb") as file:
+                for chunk in response.iter_content(1024):
+                    file.write(chunk)
+            
+            result = {"status": "success", "image_name": full_image_name}
+        else:
+            result = {"status": "error", "message": ""}
+    except Exception as e:
+        result = {"status": "error", "message": e}
+
     return result
 
 """
@@ -50,6 +62,7 @@ def save_picture(url, picture_name=""):
 """
 def get_picture_from_base(engine, date):
     message = ""
+    status = False
     picture_content = ""
     input_file = ""
 
@@ -59,32 +72,34 @@ def get_picture_from_base(engine, date):
 
     if result_today_picture is None:
         data = download_picture(NASA_TOKEN, date)
+        save_image = save_picture(data['url'], date.strftime("%Y-%m-%d"))
 
-        if data is not None:
-            if save_picture(data['url']):
-                session.add(Picture(title=data['title'], description=data['explanation'], link=data['url'], picture_date=date))
-                session.commit()
+        if data is not None and save_image["status"] == "success":
+            session.add(Picture(title=data['title'], description=data['explanation'], link=data['url'], picture_date=date))
+            session.commit()
 
-                input_file = FSInputFile(f"src/img/{data['date']}.jpg")
-                picture_content = f"{data['title']}\n"
-            else:
-                message = f"На сегодня хранилище с картинками недоступно. Попробуте через час или позже."
+            input_file = FSInputFile(f"./src/img/{save_image["image_name"]}")
+            picture_content = f"{data['title']}\n"
+
+            status = True
         else:
             message = f"На сегодня хранилище с картинками недоступно. Попробуте через час или позже."
     else:
         picture_name = date.strftime('%Y-%m-%d')
 
-        if os.path.isfile(f"src/img/{picture_name}.jpg") is False:
+        if os.path.isfile(f"./src/img/{picture_name}") is False:
             if save_picture(result_today_picture.link) is False:
                 message = f"На сегодня хранилище с картинками недоступно. Попробуте через час или позже."
         
         input_file = FSInputFile(f"src/img/{picture_name}.jpg")
         
         picture_content = f"{result_today_picture.title}\n"
+        status = True
 
     session.close()
 
     return {
+        "status": status,
         "message": message,
         "picture": {
             "picture_content": picture_content,
