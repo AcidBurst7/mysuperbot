@@ -44,14 +44,12 @@ async def command_start_handler(message: Message) -> None:
 @dp.message(Command("today_picture"))
 async def today_picture(message: Message):
     user_helper.get_user(engine, message.from_user.username, message.chat.id)
-    picture = picture_helper.get_picture_from_base(engine, datetime.date.today())
+    response = picture_helper.get_picture_from_base(engine, datetime.date.today())
 
-    await message.answer_photo(picture["picture"]["input_file"], picture["picture"]["picture_content"])
-
-    if picture["picture"]["input_file"] == "":
-        await message.answer(picture["picture"]["picture_content"])
+    if response["image"]["file"] == "":
+        await message.answer(response["image"]["title"])
     else:
-        await message.answer_photo(picture["picture"]["input_file"], picture["picture"]["picture_content"])
+        await message.answer_photo(response["image"]["file"], response["image"]["title"])
 
 
 @dp.message(Command("calendar"))
@@ -65,22 +63,24 @@ async def calendar_picture(message: Message):
 @dp.callback_query(SimpleCalendarCallback.filter())
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData):
     calendar = SimpleCalendar(show_alerts=True)
-    date_year = int(datetime.datetime.now().strftime("%Y"))
-    date_month = int(datetime.datetime.now().strftime("%m"))
-    date_day = int(datetime.datetime.now().strftime("%d"))
-    calendar.set_dates_range(datetime.datetime(1995, 1, 1), datetime.datetime(date_year, date_month, date_day))
+    
+    date_today = datetime.datetime.now()
+    year = int(date_today.strftime("%Y"))
+    month = int(date_today.strftime("%m"))
+    day = int(date_today.strftime("%d"))
+
+    calendar.set_dates_range(datetime.datetime(1995, 1, 1), datetime.datetime(year, month, day))
     selected, date = await calendar.process_selection(callback_query, callback_data)
     if selected:
         await callback_query.message.answer(f'Подгружаем картинку на дату {date.strftime("%d.%m.%Y")}...')
         
         user_helper.get_user(engine, callback_query.from_user.username, callback_query.message.chat.id)
-        picture = picture_helper.get_picture_from_base(engine, date)
+        response = picture_helper.get_picture_from_base(engine, date)
 
-        if picture["picture"]["input_file"] == "":
-            await callback_query.message.answer(picture["picture"]["picture_content"])
+        if response["media"]["file"] == "":
+            await callback_query.message.answer(response["media"]["title"])
         else:
-            await callback_query.message.answer_photo(picture["picture"]["input_file"], picture["picture"]["picture_content"])
-
+            await callback_query.message.answer_photo(response["media"]["file"], response["media"]["title"])
 
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -93,6 +93,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    # logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     asyncio.run(main())

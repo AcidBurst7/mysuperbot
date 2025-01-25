@@ -20,7 +20,8 @@ class Picture(Base):
     title: Mapped[str] = mapped_column(String(30))
     description: Mapped[Optional[str]]
     link: Mapped[Optional[str]]
-    picture_date: Mapped[str] = mapped_column(Date, nullable=False)
+    type: Mapped[Optional[str]]
+    published_date: Mapped[str] = mapped_column(Date, nullable=False)
     created_at: Mapped[str] = mapped_column(DateTime, default=datetime.date.today, nullable=False)
     
     def __repr__(self) -> str:
