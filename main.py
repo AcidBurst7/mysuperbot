@@ -24,7 +24,7 @@ from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, DialogCalen
 
 from models import Picture, User
 import helpers.picture_helper as picture_helper
-import helpers.daily_picture as daily_picture
+import daily_picture as daily_picture
 import helpers.user_helper as user_helper
 
 engine = create_engine("sqlite:///bot.db", echo=True)
@@ -43,19 +43,10 @@ async def command_start_handler(message: Message) -> None:
 
 @dp.message(Command("today_picture"))
 async def today_picture(message: Message):
-    user_helper.get_user(engine, message.from_user.username, message.chat.id)
-    response = picture_helper.get_picture_from_base(engine, datetime.date.today())
+    date_today = datetime.date.today()
 
-    if response["status"]:
-        content = response["media"]["title"]  
-    else:
-        content = response["message"]
-
-    if response["media"]["file"] == "":
-        await message.answer(content)
-    else:
-        await message.answer_photo(response["media"]["file"], response["media"]["title"])
-
+    user_helper.get_user(engine, message.from_user, message.chat.id)
+    await picture_helper.send_answer(engine, message, date_today)
 
 @dp.message(Command("calendar"))
 async def calendar_picture(message: Message):
@@ -63,7 +54,6 @@ async def calendar_picture(message: Message):
         "Здесь вы можете выбрать дату в промежутке от 1 января 1995 года и до сегодняшней даты. Выберите нужное из календарика ниже.",
         reply_markup=await SimpleCalendar().start_calendar()
     )
-
 
 @dp.callback_query(SimpleCalendarCallback.filter())
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData):
@@ -78,20 +68,13 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
     selected, date = await calendar.process_selection(callback_query, callback_data)
     if selected:
         await callback_query.message.answer(f'Подгружаем картинку на дату {date.strftime("%d.%m.%Y")}...')
-        
-        user_helper.get_user(engine, callback_query.from_user.username, callback_query.message.chat.id)
-        response = picture_helper.get_picture_from_base(engine, date)
-
-        if response["media"]["file"] == "":
-            await callback_query.message.answer(response["media"]["title"])
-        else:
-            await callback_query.message.answer_photo(response["media"]["file"], response["media"]["title"])
+        user_helper.get_user(engine, callback_query.from_user, callback_query.message.chat.id)
+        await picture_helper.send_answer(engine, callback_query.message, date)
 
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-
-    schedule.add_job(daily_picture.send_photo, 'cron', hour=17, minute=40, id='my_job_id')
-    # schedule.remove_job('my_job_id')
+    
+    schedule.add_job(daily_picture.send_photo, 'cron', day_of_week='0-6', hour='23', minute='45', id='send_photo_job')
     schedule.start()
     
     await dp.start_polling(bot)
