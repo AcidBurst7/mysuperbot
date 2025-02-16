@@ -32,35 +32,42 @@ def download_media(token, date):
 Сохранение картинки на диске
 """
 def save_media(data, picture_name=""):
-    if type(data) is list and data["media_type"] == "image":
-        url = data["url"]
-    else:
-        url = data
-
-    url_paths = url.split("/")
-    image_name = url_paths[len(url_paths)-1]
-    image_extension = image_name.split(".")[1]
-    
-    if picture_name == "":
-        picture_name = datetime.date.today().strftime('%Y-%m-%d')
-
-    full_image_name = f"{picture_name}.{image_extension}"
-    image_path = f"./src/img/{full_image_name}"
-    
-    try:
-        response = requests.get(url, stream=True)
-        if response.status_code == 200:
-            with open(image_path, "wb") as file:
-                for chunk in response.iter_content(1024):
-                    file.write(chunk)
-            
-            result = {"status": True, "image_name": full_image_name}
+    if data["media_type"] == "image":
+        if type(data) is list and data["media_type"] == "image":
+            url = data["url"]
+        elif type(data) is dict:
+            url = data.url
         else:
-            result = {"status": False, "message": "Не удалось загрузить картинку"}
-    except Exception as e:
-        result = {"status": False, "message": e}
-    # else:
-    #     result = {"status": False, "image_name": data["url"]}
+            url = data.link
+    
+        print("IN save_media ===================================================")
+        print(url)
+        print("IN save_media ===================================================")
+        url_paths = url.split("/")
+
+        image_name = url_paths[len(url_paths)-1]
+        image_extension = image_name.split(".")[1]
+        
+        if picture_name == "":
+            picture_name = datetime.date.today().strftime('%Y-%m-%d')
+
+        full_image_name = f"{picture_name}.{image_extension}"
+        image_path = f"./src/img/{full_image_name}"
+        
+        try:
+            response = requests.get(url, stream=True)
+            if response.status_code == 200:
+                with open(image_path, "wb") as file:
+                    for chunk in response.iter_content(1024):
+                        file.write(chunk)
+                
+                result = {"status": True, "image_name": full_image_name}
+            else:
+                result = {"status": False, "message": "Не удалось загрузить картинку"}
+        except Exception as e:
+            result = {"status": False, "message": e}
+    else:
+        result = {"status": False, "message": "Media type is not image"}
 
     return result
 

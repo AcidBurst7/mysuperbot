@@ -22,6 +22,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback, DialogCalendar, DialogCalendarCallback, \
     get_user_locale
 
+
 from models import Picture, User
 import helpers.picture_helper as picture_helper
 import daily_picture as daily_picture
@@ -35,7 +36,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 NASA_TOKEN = os.getenv("NASA_API_KEY")
 
 dp = Dispatcher()
-schedule = AsyncIOScheduler()
+schedule = AsyncIOScheduler(timezone="Europe/Moscow")
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -74,7 +75,7 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
 async def main() -> None:
     bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     
-    schedule.add_job(daily_picture.send_photo, 'cron', day_of_week='0-6', hour='23', minute='45', id='send_photo_job')
+    schedule.add_job(daily_picture.send_photo, 'cron', day_of_week='0-6', hour='8', minute='0', id='send_photo_job')
     schedule.start()
     
     await dp.start_polling(bot)
