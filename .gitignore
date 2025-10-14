@@ -6,3 +6,4 @@ src/img
 .vscode
 .idea
 .vs
+logs/*
