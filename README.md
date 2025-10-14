@@ -48,7 +48,7 @@ NASA_API_KEY=твой_api_ключ
 
 # 5. Запустить бота
 python main.py
-```bash
+```
 
 ---
 
