@@ -6,21 +6,20 @@ import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
-from dotenv import load_dotenv, dotenv_values 
-from helpers import picture_helper
-import daily_picture
+from dotenv import load_dotenv 
+from helpers import picture as picture_helper
 
-from models import Picture, User
+from models import User
+from logger import logger
 
-engine = create_engine("sqlite:///bot.db", echo=True)
-
-load_dotenv() 
- 
-TOKEN = os.getenv("BOT_TOKEN")
-NASA_TOKEN = os.getenv("NASA_API_KEY")
-URL = f"https://api.telegram.org/bot{TOKEN}"
 
 def send_photo():
+    engine = create_engine("sqlite:///bot.db", echo=True)
+
+    load_dotenv() 
+    TOKEN = os.getenv("BOT_TOKEN")
+    URL = f"https://api.telegram.org/bot{TOKEN}"
+
     session = Session(engine)
     picture = picture_helper.get_picture_from_base(engine, datetime.date.today())
     
@@ -28,7 +27,6 @@ def send_photo():
     result_user = session.scalars(user).all()
 
     for user in result_user:
-        print(user)
         params = {"chat_id": user.chat_id}
 
         if picture["media"]["path"] != "":
@@ -40,10 +38,13 @@ def send_photo():
             params["text"] = picture["media"]["title"]
             response = requests.post(url=f"{URL}/sendMessage", data=params)
         
-        if response.status_code == 200:
-                print("Media sent successfully!")
-        else:
-            print(f"Failed to send media: {response.status_code}, {response.text}")
+        if response.status_code != 200:
+            logger.error(
+            f"""
+                Ошибка при отправке медиафайла. 
+                Код: {response.status_code}, 
+                сообщение: {response.text}
+            """)
     session.close()
 
 if __name__ == '__main__':

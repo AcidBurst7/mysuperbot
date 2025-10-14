@@ -1,9 +1,12 @@
-from sqlalchemy import create_engine
 from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
 
 from models import User
 
+
+"""
+Распознавание пользователя
+"""
 def get_user(engine, user_info, chat_id):
     session = Session(engine)
     user = select(User).where(User.chat_id==chat_id)
