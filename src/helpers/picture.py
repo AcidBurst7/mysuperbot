@@ -4,12 +4,10 @@ import datetime
 from dotenv import load_dotenv 
 from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import select
-from sqlalchemy.orm import Session
 
 from aiogram.types import FSInputFile
 
-from models import Picture
+from database.models import Picture
 from logger import logger
 
 load_dotenv()
@@ -51,7 +49,6 @@ def save_media(data, picture_name=""):
             url = data.link
     
         url_paths = url.split("/")
-
         image_name = url_paths[len(url_paths)-1]
         image_extension = image_name.split(".")[1]
         

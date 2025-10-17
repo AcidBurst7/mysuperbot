@@ -25,7 +25,10 @@ class Picture(Base):
     created_at: Mapped[str] = mapped_column(DateTime, default=datetime.date.today, nullable=False)
     
     def __repr__(self) -> str:
-        return f"Picture(id={self.id!r}, title={self.title!r}, description={self.description!r}, link={self.link!r}, type={self.type!r}, published_date={self.published_date!r}, description={self.created_at!r})"
+        return f"Picture(id={self.id!r}, title={self.title!r}, \
+                description={self.description!r}, link={self.link!r}, \
+                type={self.type!r}, published_date={self.published_date!r}, \
+                description={self.created_at!r})"
     
 
 class User(Base):

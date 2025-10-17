@@ -8,13 +8,12 @@
 4. запустить команду docker compose up --build -d
 5. выйти
 """
+import os
 import paramiko
 import time
 import socket
-import re
 from pprint import pprint
-import os
-from dotenv import load_dotenv, dotenv_values 
+from dotenv import load_dotenv 
 
 
 def send_show_command(ip, username, password, enable, command, max_bytes=60000, short_pause=1, long_pause=5,):
@@ -44,7 +43,6 @@ def send_show_command(ip, username, password, enable, command, max_bytes=60000, 
             while True:
                 try:
                     part = ssh.recv(max_bytes).decode("utf-8")
-                    # match = re.search('[A-Za-z]', part).group()
                     output += part
                     time.sleep(0.5)
                 except socket.timeout:

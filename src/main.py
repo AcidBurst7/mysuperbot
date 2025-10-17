@@ -20,14 +20,16 @@ from helpers import picture as picture_helper
 from helpers import user as user_helper
 import scheduler as scheduler
 
-engine = create_engine("sqlite:///bot.db", echo=True)
+engine = create_engine("sqlite:///database/bot.db", echo=True)
 dp = Dispatcher()
 load_dotenv() 
 schedule = AsyncIOScheduler(timezone="Europe/Moscow")
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(f"Привет, {html.bold(message.from_user.full_name)}!\n Скорее запускай команду /today_picture чтобы загрузить картинку дня или с помощью команды /calendar получить картинку за интересующую дату.")
+    await message.answer(f"Привет, {html.bold(message.from_user.full_name)}!\n" \
+                        "Скорее запускай команду /today_picture чтобы загрузить картинку дня " \
+                        "или с помощью команды /calendar получить картинку за интересующую дату.")
 
 
 @dp.message(Command("today_picture"))

@@ -9,12 +9,12 @@ from sqlalchemy.orm import Session
 from dotenv import load_dotenv 
 from helpers import picture as picture_helper
 
-from models import User
+from database.models import User
 from logger import logger
 
 
 def send_photo():
-    engine = create_engine("sqlite:///bot.db", echo=True)
+    engine = create_engine("sqlite:///database/bot.db", echo=True)
 
     load_dotenv() 
     TOKEN = os.getenv("BOT_TOKEN")
@@ -40,11 +40,10 @@ def send_photo():
         
         if response.status_code != 200:
             logger.error(
-            f"""
-                Ошибка при отправке медиафайла. 
-                Код: {response.status_code}, 
-                сообщение: {response.text}
-            """)
+                f"Ошибка при отправке сообщения. \
+                Код: {response.status_code}, \
+                сообщение: {response.text}"
+            )
     session.close()
 
 if __name__ == '__main__':
