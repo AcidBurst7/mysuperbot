@@ -2,14 +2,16 @@ import requests
 import os
 import datetime
 from dotenv import load_dotenv 
+from sqlalchemy import create_engine
 from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
 
 from aiogram.types import FSInputFile
 
-from database.models import Picture
+from models import Picture
 from logger import logger
 
+engine = create_engine("sqlite:///bot.db", echo=True)
 load_dotenv()
 NASA_TOKEN = os.getenv("NASA_API_KEY")
 
@@ -17,7 +19,6 @@ NASA_TOKEN = os.getenv("NASA_API_KEY")
 Загрузка картинки с сервера NASA
 """
 def download_media(token, date):
-    result = None
     try:
         picture_date = date.strftime("%Y-%m-%d")
         request = requests.get(
@@ -31,6 +32,7 @@ def download_media(token, date):
             result = request.json()
             logger.error(result.json())
         else:
+            result = {"code": request.status_code}
             logger.error(f"Запрос картинки на дату - {picture_date}, код ответа: {request.status_code}")
     except Exception as e:
         logger.critical(f"Бот упал с ошибкой: {e}", exc_info=True)
@@ -95,7 +97,7 @@ def get_picture_from_base(engine, date):
     result_today_media = session.scalars(today_media).first()
     if result_today_media is None:
         data = download_media(NASA_TOKEN, date)
-
+        print(data)
         if 'code' not in data:
             if data is not None:
                 save_image = save_media(data, date.strftime("%Y-%m-%d"))
@@ -153,7 +155,7 @@ def get_picture_from_base(engine, date):
     }
 
 
-async def send_answer(engine, message, date):
+async def send_answer(message, date):
     response = get_picture_from_base(engine, date)
 
     if response["status"]:

@@ -3,7 +3,6 @@ import logging
 import sys
 import os
 import datetime
-from sqlalchemy import create_engine
 from dotenv import load_dotenv 
 
 from aiogram import Bot, Dispatcher, html
@@ -24,7 +23,6 @@ from helpers import (
 )
 import scheduler as scheduler
 
-engine = create_engine("sqlite:////database/bot.db", echo=True)
 dp = Dispatcher()
 load_dotenv() 
 schedule = AsyncIOScheduler(timezone="Europe/Moscow")
@@ -39,8 +37,8 @@ async def command_start_handler(message: Message) -> None:
 @dp.message(Command("today_picture"))
 async def today_picture(message: Message):
     date_today = datetime.date.today()
-    user_helper.get_user(engine, message.from_user, message.chat.id)
-    await picture_helper.send_answer(engine, message, date_today)
+    user_helper.get_user(message.from_user, message.chat.id)
+    await picture_helper.send_answer(message, date_today)
 
 
 @dp.message(Command("calendar"))
@@ -64,8 +62,8 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
     selected, date = await calendar.process_selection(callback_query, callback_data)
     if selected:
         await callback_query.message.answer(f'Подгружаем картинку на дату {date.strftime("%d.%m.%Y")}...')
-        user_helper.get_user(engine, callback_query.from_user, callback_query.message.chat.id)
-        await picture_helper.send_answer(engine, callback_query.message, date)
+        user_helper.get_user(callback_query.from_user, callback_query.message.chat.id)
+        await picture_helper.send_answer(callback_query.message, date)
 
 
 async def main() -> None:

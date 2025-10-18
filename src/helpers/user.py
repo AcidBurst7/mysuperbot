@@ -1,13 +1,16 @@
+from sqlalchemy import create_engine
 from sqlalchemy.sql import select
 from sqlalchemy.orm import Session
 
-from database.models import User
+from models import User
 
+
+engine = create_engine("sqlite:///bot.db", echo=True)
 
 """
 Распознавание пользователя
 """
-def get_user(engine, user_info, chat_id):
+def get_user(user_info, chat_id):
     session = Session(engine)
     user = select(User).where(User.chat_id==chat_id)
     result_user = session.scalars(user).first()

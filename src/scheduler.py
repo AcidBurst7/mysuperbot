@@ -9,12 +9,12 @@ from sqlalchemy.orm import Session
 from dotenv import load_dotenv 
 from helpers import picture as picture_helper
 
-from database.models import User
+from models import User
 from logger import logger
 
 
 def send_photo():
-    engine = create_engine("sqlite:////database/bot.db", echo=True)
+    engine = create_engine("sqlite:///bot.db", echo=True)
 
     load_dotenv() 
     TOKEN = os.getenv("BOT_TOKEN")

@@ -47,6 +47,7 @@ TELEGRAM_TOKEN=твой_токен_бота
 NASA_API_KEY=твой_api_ключ
 
 # 5. Запустить бота
+cd src
 python main.py
 ```
 
