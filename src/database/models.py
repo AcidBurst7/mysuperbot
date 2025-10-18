@@ -43,5 +43,5 @@ class User(Base):
     created_at: Mapped[str] = mapped_column(Date, default=datetime.date.today, nullable=False)
     
 
-engine = create_engine("sqlite:///bot.db", echo=True)
+engine = create_engine("sqlite:////database/bot.db", echo=True)
 Base.metadata.create_all(engine)

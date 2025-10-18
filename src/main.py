@@ -14,13 +14,17 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.filters.command import Command
 from aiogram.types import Message, CallbackQuery
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from aiogram_calendar import SimpleCalendar, SimpleCalendarCallback
-
-from helpers import picture as picture_helper
-from helpers import user as user_helper
+from aiogram_calendar import (
+    SimpleCalendar, 
+    SimpleCalendarCallback
+)
+from helpers import (
+    picture as picture_helper, 
+    user as user_helper
+)
 import scheduler as scheduler
 
-engine = create_engine("sqlite:///database/bot.db", echo=True)
+engine = create_engine("sqlite:////database/bot.db", echo=True)
 dp = Dispatcher()
 load_dotenv() 
 schedule = AsyncIOScheduler(timezone="Europe/Moscow")
@@ -35,7 +39,6 @@ async def command_start_handler(message: Message) -> None:
 @dp.message(Command("today_picture"))
 async def today_picture(message: Message):
     date_today = datetime.date.today()
-
     user_helper.get_user(engine, message.from_user, message.chat.id)
     await picture_helper.send_answer(engine, message, date_today)
 

@@ -14,7 +14,7 @@ from logger import logger
 
 
 def send_photo():
-    engine = create_engine("sqlite:///database/bot.db", echo=True)
+    engine = create_engine("sqlite:////database/bot.db", echo=True)
 
     load_dotenv() 
     TOKEN = os.getenv("BOT_TOKEN")
